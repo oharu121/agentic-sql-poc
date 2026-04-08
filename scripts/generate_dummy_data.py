@@ -6,12 +6,14 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+from sql.schema import AREA_VALUES, YEAR_VALUES, QUARTER_VALUES, PRODUCT_CATEGORY_VALUES
+
 rng = np.random.default_rng(42)
 
-AREAS = ["関東", "関西", "中部", "九州", "東北"]
-YEARS = [2024, 2025]
-QUARTERS = ["Q1", "Q2", "Q3", "Q4"]
-PRODUCTS = ["戸建", "マンション", "リフォーム"]
+AREAS = AREA_VALUES
+YEARS = YEAR_VALUES
+QUARTERS = QUARTER_VALUES
+PRODUCTS = PRODUCT_CATEGORY_VALUES
 
 # Quarterly sales plan base (百万円), indexed Q1–Q4
 AREA_BASE_PLAN = {

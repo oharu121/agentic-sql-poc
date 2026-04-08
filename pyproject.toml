@@ -9,12 +9,16 @@ dependencies = [
     "pyarrow>=15.0",
     "duckdb>=0.10",
     "ollama>=0.3",
+    "numpy>=1.26",
 ]
 
 [dependency-groups]
 dev = [
     "pytest>=8.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["etl", "sql", "agent", "scripts"]

@@ -63,8 +63,8 @@ Units: All monetary values (売上, 利益, 受注) are in 百万円 (million ye
 
 def load_database(processed_dir: Path) -> duckdb.DuckDBPyConnection:
     """Load both Parquet files into an in-memory DuckDB instance."""
-    area_parquet = processed_dir / "area_pl.parquet"
-    product_parquet = processed_dir / "product_sales.parquet"
+    area_parquet = processed_dir / f"{AREA_PL_TABLE}.parquet"
+    product_parquet = processed_dir / f"{PRODUCT_SALES_TABLE}.parquet"
     for f in [area_parquet, product_parquet]:
         if not f.exists():
             raise FileNotFoundError(
@@ -100,6 +100,11 @@ def ask(question: str, con: duckdb.DuckDBPyConnection) -> dict:
     fence_match = re.search(r"```(?:sql)?\s*\n(.*?)```", sql, re.DOTALL | re.IGNORECASE)
     if fence_match:
         sql = fence_match.group(1).strip()
+    sql_upper = sql.strip().upper()
+    if not sql_upper.startswith("SELECT"):
+        raise RuntimeError(
+            f"Agent returned non-SELECT SQL (rejected for safety):\n{sql}"
+        )
     try:
         result: pd.DataFrame = con.execute(sql).df()
     except duckdb.Error as exc:

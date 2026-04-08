@@ -115,6 +115,31 @@ class TestAsk:
         assert isinstance(result["result"], pd.DataFrame)
         assert result["result"].iloc[0]["total"] == 510
 
+    def test_ask_strips_markdown_fences(self, tmp_path):
+        area_df = pd.DataFrame({
+            "エリア": ["関東"], "年度": [2025], "四半期": ["Q1"],
+            "売上_計画": [525], "売上_実績": [510],
+            "利益_計画": [95], "利益_実績": [90],
+            "受注_計画": [610], "受注_実績": [595],
+        })
+        prod_df = pd.DataFrame({
+            "商品カテゴリ": ["戸建"], "エリア": ["関東"], "年度": [2025], "四半期": ["Q1"],
+            "売上_計画": [236], "売上_実績": [229],
+        })
+        area_df.to_parquet(tmp_path / "area_pl.parquet", index=False)
+        prod_df.to_parquet(tmp_path / "product_sales.parquet", index=False)
+
+        con = load_database(tmp_path)
+
+        # Model wraps SQL in markdown fence despite instructions
+        mock_response = MagicMock()
+        mock_response.message.content = '```sql\nSELECT SUM("売上_実績") AS total FROM area_pl\n```'
+
+        with patch("agent.sql_agent.ollama.chat", return_value=mock_response):
+            result = ask("関東の売上は？", con)
+
+        assert result["result"].iloc[0]["total"] == 510
+
     def test_ask_raises_runtime_error_on_invalid_sql(self, tmp_path):
         area_df = pd.DataFrame({
             "エリア": ["関東"], "年度": [2025], "四半期": ["Q1"],
@@ -135,5 +160,5 @@ class TestAsk:
         mock_response.message.content = "this is not valid SQL at all"
 
         with patch("agent.sql_agent.ollama.chat", return_value=mock_response):
-            with pytest.raises(RuntimeError, match="SQL execution failed"):
+            with pytest.raises(RuntimeError, match="SQL execution failed|non-SELECT SQL"):
                 ask("何か？", con)

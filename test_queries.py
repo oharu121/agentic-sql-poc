@@ -19,7 +19,7 @@ def main():
     processed_dir = Path("data/processed")
 
     # Run ETL if Parquet files don't exist yet
-    if not (processed_dir / "area_pl.parquet").exists():
+    if not all((processed_dir / f).exists() for f in ["area_pl.parquet", "product_sales.parquet"]):
         print("Parquet files not found — running ETL first...\n")
         run_etl()
 
