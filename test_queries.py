@@ -9,9 +9,12 @@ from agent.sql_agent import ask, load_database
 from etl.excel_to_parquet import run_etl
 
 QUESTIONS = [
+    # Q1: simple filter + aggregation (same as before — not in few-shot examples)
     "関東エリアの今期（2025年度）累計売上実績は？",
-    "全エリアで2025年度の計画比達成率が最も低いのはどこか？",
-    "2025年度Q2の商品別売上ランキングを教えてください。",
+    # Q2: grouped aggregation + ratio (novel — few-shot example uses 売上, this uses 利益)
+    "2025年度で利益の計画達成率が最も高いエリアはどこですか？",
+    # Q3: grouped ranking (novel — few-shot example uses Q2+商品, this uses Q3+エリア)
+    "2025年度Q3のエリア別受注実績ランキングを出してください。",
 ]
 
 

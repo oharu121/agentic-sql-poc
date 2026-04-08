@@ -7,6 +7,7 @@ import ollama
 import duckdb
 import pandas as pd
 
+from sql.queries import QUERIES
 from sql.schema import (
     AREA_PL_COLUMNS,
     AREA_PL_TABLE,
@@ -18,7 +19,23 @@ from sql.schema import (
     YEAR_VALUES,
 )
 
+# Questions from QUERIES to include as few-shot examples in the system prompt.
+_FEW_SHOT_KEYS = [
+    "全エリアで2025年度の計画比達成率が最も低いのはどこか？",
+    "2025年度Q2の商品別売上ランキングを教えてください。",
+]
+
 MODEL = "gemma4:e4b"  # update if your Ollama tag differs (check: ollama list)
+MAX_RETRIES = 2  # total attempts = 1 + MAX_RETRIES
+
+
+def _build_few_shot_section() -> str:
+    """Format selected reference queries as compact Q/A examples."""
+    lines = []
+    for key in _FEW_SHOT_KEYS:
+        sql = " ".join(QUERIES[key].split())  # collapse to single line
+        lines.append(f"Q: {key}\nA: {sql}")
+    return "\n\n".join(lines)
 
 
 @lru_cache(maxsize=1)
@@ -58,7 +75,14 @@ Valid values:
 ---
 Units: All monetary values (売上, 利益, 受注) are in 百万円 (million yen).
 "今期" means 2025年度 unless context suggests otherwise.
-"""
+
+IMPORTANT: Each table has one row per (エリア, 四半期) combination.
+When comparing across areas or categories, always use SUM() to aggregate over quarters.
+
+---
+Examples:
+
+{_build_few_shot_section()}"""
 
 
 def load_database(processed_dir: Path) -> duckdb.DuckDBPyConnection:
@@ -83,32 +107,58 @@ def load_database(processed_dir: Path) -> duckdb.DuckDBPyConnection:
     return con
 
 
+def _extract_sql(raw: str) -> str:
+    """Strip markdown fences and whitespace from LLM output."""
+    sql = raw.strip()
+    fence_match = re.search(r"```(?:sql)?\s*\n(.*?)```", sql, re.DOTALL | re.IGNORECASE)
+    if fence_match:
+        sql = fence_match.group(1).strip()
+    return sql
+
+
 def ask(question: str, con: duckdb.DuckDBPyConnection) -> dict:
     """
     Send a natural language question to the local Ollama model, execute the
     returned SQL against DuckDB, and return question + sql + result DataFrame.
+    Retries up to MAX_RETRIES times on SQL execution errors, feeding the error
+    back to the LLM for self-correction.
     """
-    response = ollama.chat(
-        model=MODEL,
-        messages=[
-            {"role": "system", "content": build_system_prompt()},
-            {"role": "user", "content": question},
-        ],
+    messages = [
+        {"role": "system", "content": build_system_prompt()},
+        {"role": "user", "content": question},
+    ]
+
+    last_sql = ""
+    last_error: Exception | None = None
+
+    for attempt in range(1 + MAX_RETRIES):
+        response = ollama.chat(model=MODEL, messages=messages)
+        sql = _extract_sql(response.message.content)
+
+        if not sql.upper().startswith("SELECT"):
+            raise RuntimeError(
+                f"Agent returned non-SELECT SQL (rejected for safety):\n{sql}"
+            )
+
+        try:
+            result: pd.DataFrame = con.execute(sql).df()
+            if attempt > 0:
+                print(f"  (self-corrected on attempt {attempt + 1})")
+            return {"question": question, "sql": sql, "result": result}
+        except duckdb.Error as exc:
+            last_sql = sql
+            last_error = exc
+            if attempt < MAX_RETRIES:
+                messages.append({"role": "assistant", "content": sql})
+                messages.append({
+                    "role": "user",
+                    "content": (
+                        f"That SQL failed with error: {exc}\n"
+                        "Please fix the query and return only the corrected SQL."
+                    ),
+                })
+
+    raise RuntimeError(
+        f"SQL execution failed after {1 + MAX_RETRIES} attempts.\n"
+        f"Last SQL:\n{last_sql}\nError: {last_error}"
     )
-    sql = response.message.content.strip()
-    # Strip markdown code fences if the model wraps output despite instructions
-    fence_match = re.search(r"```(?:sql)?\s*\n(.*?)```", sql, re.DOTALL | re.IGNORECASE)
-    if fence_match:
-        sql = fence_match.group(1).strip()
-    sql_upper = sql.strip().upper()
-    if not sql_upper.startswith("SELECT"):
-        raise RuntimeError(
-            f"Agent returned non-SELECT SQL (rejected for safety):\n{sql}"
-        )
-    try:
-        result: pd.DataFrame = con.execute(sql).df()
-    except duckdb.Error as exc:
-        raise RuntimeError(
-            f"SQL execution failed.\nGenerated SQL:\n{sql}\nError: {exc}"
-        ) from exc
-    return {"question": question, "sql": sql, "result": result}

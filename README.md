@@ -75,20 +75,18 @@ Loading database...
 Q: 関東エリアの今期（2025年度）累計売上実績は？
 
 Generated SQL:
-SELECT SUM("売上_実績") AS 累計売上実績_百万円
-FROM area_pl
-WHERE "エリア" = '関東' AND "年度" = 2025
+SELECT SUM("売上_実績") FROM area_pl WHERE "エリア" = '関東' AND "年度" = 2025
 
 Result:
- 累計売上実績_百万円
-            2383
+ sum("売上_実績")
+       2383.0
 
 ======================================================================
-Q: 全エリアで2025年度の計画比達成率が最も低いのはどこか？
+Q: 2025年度で利益の計画達成率が最も高いエリアはどこですか？
 ...
 
 ======================================================================
-Q: 2025年度Q2の商品別売上ランキングを教えてください。
+Q: 2025年度Q3のエリア別受注実績ランキングを出してください。
 ...
 ```
 
@@ -109,7 +107,7 @@ All 19 tests run without a live Ollama server (ollama.chat is mocked).
 ├── etl/
 │   └── excel_to_parquet.py  # Reads Excel, validates schema, outputs Parquet
 ├── agent/
-│   └── sql_agent.py       # NL → Ollama → SQL → DuckDB → result
+│   └── sql_agent.py       # NL → Ollama → SQL → DuckDB → result (with retry + few-shot examples)
 ├── scripts/
 │   └── generate_dummy_data.py  # Regenerates dummy Excel files
 ├── tests/
