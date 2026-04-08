@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated data (Parquet files are derived from raw Excel — regenerate with etl/)
+data/processed/*.parquet
+
+# Environment / secrets (never commit real credentials)
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# uv
+# uv.lock is intentionally committed for reproducibility
