@@ -1,4 +1,6 @@
 # agent/sql_agent.py
+import re
+from functools import lru_cache
 from pathlib import Path
 
 import ollama
@@ -19,6 +21,7 @@ from sql.schema import (
 MODEL = "gemma4:e4b"  # update if your Ollama tag differs (check: ollama list)
 
 
+@lru_cache(maxsize=1)
 def build_system_prompt() -> str:
     def fmt_cols(columns: dict[str, str]) -> str:
         return "\n".join(
@@ -29,6 +32,7 @@ def build_system_prompt() -> str:
 
 When asked a question in Japanese, generate a single DuckDB SQL query to answer it.
 Return ONLY the SQL query — no explanation, no markdown fences, no commentary.
+Only generate SELECT statements. Never generate DDL or DML (no DROP, INSERT, UPDATE, DELETE).
 
 IMPORTANT: All Japanese column names MUST be wrapped in double quotes (e.g., "エリア", "売上_実績").
 
@@ -59,14 +63,22 @@ Units: All monetary values (売上, 利益, 受注) are in 百万円 (million ye
 
 def load_database(processed_dir: Path) -> duckdb.DuckDBPyConnection:
     """Load both Parquet files into an in-memory DuckDB instance."""
+    area_parquet = processed_dir / "area_pl.parquet"
+    product_parquet = processed_dir / "product_sales.parquet"
+    for f in [area_parquet, product_parquet]:
+        if not f.exists():
+            raise FileNotFoundError(
+                f"Parquet file not found: {f}\n"
+                "Run 'uv run python etl/excel_to_parquet.py' to generate it."
+            )
     con = duckdb.connect()
     con.execute(
         f"CREATE TABLE {AREA_PL_TABLE} AS "
-        f"SELECT * FROM read_parquet('{processed_dir / 'area_pl.parquet'}')"
+        f"SELECT * FROM read_parquet('{area_parquet}')"
     )
     con.execute(
         f"CREATE TABLE {PRODUCT_SALES_TABLE} AS "
-        f"SELECT * FROM read_parquet('{processed_dir / 'product_sales.parquet'}')"
+        f"SELECT * FROM read_parquet('{product_parquet}')"
     )
     return con
 
@@ -85,10 +97,13 @@ def ask(question: str, con: duckdb.DuckDBPyConnection) -> dict:
     )
     sql = response.message.content.strip()
     # Strip markdown code fences if the model wraps output despite instructions
-    if sql.startswith("```"):
-        sql = "\n".join(
-            line for line in sql.splitlines()
-            if not line.startswith("```")
-        ).strip()
-    result: pd.DataFrame = con.execute(sql).df()
+    fence_match = re.search(r"```(?:sql)?\s*\n(.*?)```", sql, re.DOTALL | re.IGNORECASE)
+    if fence_match:
+        sql = fence_match.group(1).strip()
+    try:
+        result: pd.DataFrame = con.execute(sql).df()
+    except duckdb.Error as exc:
+        raise RuntimeError(
+            f"SQL execution failed.\nGenerated SQL:\n{sql}\nError: {exc}"
+        ) from exc
     return {"question": question, "sql": sql, "result": result}
