@@ -18,6 +18,7 @@ def validate_columns(df: pd.DataFrame, required_columns: list[str], file_name: s
 
 
 def validate_types(df: pd.DataFrame, column_types: dict[str, str], file_name: str) -> None:
+    """Raise TypeError for non-numeric INTEGER columns. Assumes validate_columns has already passed."""
     for col, dtype in column_types.items():
         if col not in df.columns:
             continue  # validate_columns handles missing columns
@@ -39,14 +40,17 @@ def convert_excel_to_parquet(
     validate_types(df, column_types, excel_path.name)
 
     for col, dtype in column_types.items():
-        if dtype == "INTEGER":
+        if dtype == "INTEGER" and col in df.columns:
             df[col] = df[col].astype("int64")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df[required_columns].to_parquet(output_path, index=False)
 
 
-def run_etl(raw_dir: Path = Path("data/raw"), processed_dir: Path = Path("data/processed")) -> None:
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def run_etl(raw_dir: Path = _PROJECT_ROOT / "data/raw", processed_dir: Path = _PROJECT_ROOT / "data/processed") -> None:
     """Convert both Excel files to Parquet. Call this before running the agent."""
     files = [
         (

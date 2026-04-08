@@ -33,7 +33,7 @@ class TestValidateColumns:
         df = make_valid_area_pl_df().drop(columns=["利益_実績", "受注_実績"])
         with pytest.raises(ValueError) as exc_info:
             validate_columns(df, list(AREA_PL_COLUMNS.keys()), "test.xlsx")
-        assert "利益_実績" in str(exc_info.value) or "受注_実績" in str(exc_info.value)
+        assert "利益_実績" in str(exc_info.value) and "受注_実績" in str(exc_info.value)
 
 
 class TestValidateTypes:
@@ -72,7 +72,7 @@ class TestConvertExcelToParquet:
         convert_excel_to_parquet(excel_path, out_path, list(AREA_PL_COLUMNS.keys()), AREA_PL_COLUMNS)
 
         result = pd.read_parquet(out_path)
-        assert result["売上_計画"].dtype in [pd.Int64Dtype(), "int64", "int32"]
+        assert str(result["売上_計画"].dtype) == "int64"
 
     def test_missing_column_raises_before_writing(self, tmp_path):
         df = make_valid_area_pl_df().drop(columns=["エリア"])
