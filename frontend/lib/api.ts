@@ -29,6 +29,7 @@ async function* streamSSE<T>(
 
   const decoder = new TextDecoder();
   let buffer = "";
+  let currentEvent: string | null = null;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -37,8 +38,6 @@ async function* streamSSE<T>(
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
-
-    let currentEvent: string | null = null;
 
     for (const line of lines) {
       if (line.startsWith("event: ")) {
