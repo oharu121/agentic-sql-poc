@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { MayaAvatar } from "@/app/components/MayaAvatar";
+import type { AvatarState } from "@/app/components/MayaAvatar";
 import { ThinkingPanel } from "@/app/components/sql/ThinkingPanel";
 import { SQLResultTable } from "@/app/components/sql/SQLResultTable";
 import type { QueryRecord } from "@/lib/types";
@@ -12,6 +14,10 @@ interface QueryCardProps {
 export function QueryCard({ record }: QueryCardProps) {
   const [collapsed, setCollapsed] = useState(false);
   const isDone = record.status === "done" || record.status === "error";
+  const avatarState: AvatarState =
+    record.status !== "streaming" ? "idling"
+    : record.sqlResult ? "speaking"
+    : "thinking";
 
   return (
     <div className="space-y-3 animate-fade-in-up">
@@ -24,12 +30,7 @@ export function QueryCard({ record }: QueryCardProps) {
 
       {/* Agent response area */}
       <div className="flex gap-3">
-        {/* Agent icon */}
-        <div className="shrink-0 w-8 h-8 rounded-full bg-linear-to-br from-violet-600 to-blue-600 flex items-center justify-center shadow-md">
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-          </svg>
-        </div>
+        <MayaAvatar state={avatarState} size={36} />
 
         <div className="flex-1 space-y-3 min-w-0">
           {/* Collapse toggle (only for completed queries) */}
