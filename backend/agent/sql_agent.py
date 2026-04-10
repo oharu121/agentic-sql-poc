@@ -133,7 +133,7 @@ def ask(question: str, con: duckdb.DuckDBPyConnection) -> dict:
 
     for attempt in range(1 + MAX_RETRIES):
         response = ollama.chat(model=MODEL, messages=messages)
-        sql = _extract_sql(response.message.content)
+        sql = _extract_sql(response.message.content or "")
 
         if not sql.upper().startswith("SELECT"):
             raise RuntimeError(

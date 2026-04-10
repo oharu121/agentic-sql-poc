@@ -81,7 +81,8 @@ class TestLoadDatabase:
         prod_df.to_parquet(tmp_path / "product_sales.parquet", index=False)
 
         con = load_database(tmp_path)
-        count = con.execute(f'SELECT COUNT(*) FROM {AREA_PL_TABLE}').fetchone()[0]
+        row = con.execute(f'SELECT COUNT(*) FROM {AREA_PL_TABLE}').fetchone()
+        count = row[0] if row else 0
         assert count == 2
 
 

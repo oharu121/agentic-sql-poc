@@ -1,5 +1,5 @@
 {
   "language": "en",
-  "repo_mode": "python",
+  "repo_mode": "monorepo",
   "preflight_confirm": false
 }

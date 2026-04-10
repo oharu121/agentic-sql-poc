@@ -29,3 +29,9 @@ data/processed/*.parquet
 
 # uv
 # uv.lock is intentionally committed for reproducibility
+
+# Node
+node_modules/
+
+# Release tooling (temporary artifacts, not source)
+.release-tmp/

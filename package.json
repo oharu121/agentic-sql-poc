@@ -1,0 +1,27 @@
+{
+  "description": "just a wrapper of frontend/backend customized commands",
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "dev": "concurrently -k -n nextjs,python -c auto \"pnpm:dev:frontend\" \"pnpm run dev:backend\"",
+    "dev:frontend": "pnpm -C frontend run dev",
+    "dev:backend": "cd backend && uv run uvicorn app.main:app --port 7860",
+    "sync": "pnpm run sync:frontend && pnpm run sync:backend",
+    "sync:frontend": "pnpm -C frontend install",
+    "sync:backend": "cd backend && uv sync --upgrade",
+    "build:frontend": "pnpm -C frontend run build",
+    "start:frontend": "pnpm -C frontend run start",
+    "lint:frontend": "pnpm -C frontend run lint",
+    "typecheck": "pnpm run typecheck:frontend && pnpm run typecheck:backend",
+    "typecheck:frontend": "pnpm -C frontend run typecheck",
+    "typecheck:backend": "cd backend && uv run pyright",
+    "test": "pnpm run test:frontend && pnpm run test:backend",
+    "test:frontend": "pnpm -C frontend run test",
+    "test:backend": "cd backend && uv run pytest",
+    "test:coverage": "pnpm -C frontend run test:coverage",
+    "test:watch": "pnpm -C frontend run test:watch"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "version": "1.0.0"
+}
