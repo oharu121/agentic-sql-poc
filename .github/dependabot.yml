@@ -17,6 +17,22 @@ updates:
     labels:
       - "dependencies"
       - "npm"
+    
+  - package-ecosystem: "uv"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
 
   # Check for GitHub Actions updates
   - package-ecosystem: "github-actions"
