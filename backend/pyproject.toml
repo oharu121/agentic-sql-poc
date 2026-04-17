@@ -4,15 +4,15 @@ version = "0.1.0"
 description = "FastAPI backend for the agentic SQL educational demo"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi>=0.115.0",
+    "fastapi>=0.136.0",
     "uvicorn[standard]>=0.44.0",
-    "pydantic>=2.10.0",
+    "pydantic>=2.13.1",
     "python-dotenv>=1.0.0",
-    "google-genai>=1.72.0",
+    "google-genai>=1.73.1",
     "pandas>=2.2",
     "openpyxl>=3.1",
     "pyarrow>=15.0",
-    "duckdb>=0.10",
+    "duckdb>=1.5.2",
     "numpy>=1.26",
     "ollama>=0.3",
 ]
