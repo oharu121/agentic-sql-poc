@@ -77,6 +77,14 @@ export async function fetchParquetPreview(
   return response.json();
 }
 
+export async function fetchExcelPreview(
+  table: string
+): Promise<{ table: string; source_file: string; columns: string[]; rows: unknown[][] }> {
+  const response = await fetch(`${baseUrl}${endpoints.excelPreview(table)}`);
+  if (!response.ok) throw new Error(`Excel preview failed: ${response.status}`);
+  return response.json();
+}
+
 // ── Schema endpoint ───────────────────────────────────────────────────────────
 
 export async function fetchSchema(): Promise<SchemaResponse> {

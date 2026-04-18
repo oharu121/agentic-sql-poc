@@ -5,10 +5,12 @@ import { QueryCard } from "@/app/components/QueryCard";
 import { ChatInput } from "@/app/components/ChatInput";
 import { LoadingSpinner } from "@/app/components/LoadingSpinner";
 import { useQuery } from "@/hooks/useQuery";
+import { useWizardStore } from "@/stores/wizardStore";
 import { UI_TEXT } from "@/lib/constants";
 
 export function QueryInterface() {
   const { records, isLoading, error, sendQuery, clearHistory, clearError } = useQuery();
+  const toggleDrawer = useWizardStore((s) => s.toggleDrawer);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom on new content
@@ -26,14 +28,25 @@ export function QueryInterface() {
             {isLoading ? "Processing…" : `${records.length} ${records.length === 1 ? "query" : "queries"}`}
           </span>
         </div>
-        {records.length > 0 && (
+        <div className="flex items-center gap-3">
           <button
-            onClick={clearHistory}
-            className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            onClick={toggleDrawer}
+            className="text-xs text-white/40 hover:text-blue-300 transition-colors flex items-center gap-1.5"
           >
-            {UI_TEXT.clearButton}
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75.125c0-.621.504-1.125 1.125-1.125m0 0h17.25m0 0c.621 0 1.125.504 1.125 1.125M6 18.375V5.625m0 12.75h12M6 5.625A1.125 1.125 0 017.125 4.5h9.75A1.125 1.125 0 0118 5.625m0 0v12.75M18 18.375V5.625" />
+            </svg>
+            Data Reference
           </button>
-        )}
+          {records.length > 0 && (
+            <button
+              onClick={clearHistory}
+              className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            >
+              {UI_TEXT.clearButton}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Error banner */}

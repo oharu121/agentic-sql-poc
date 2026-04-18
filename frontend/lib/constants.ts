@@ -21,6 +21,7 @@ export const API_CONFIG = {
     schema: "/api/schema",
     etlRun: "/api/etl/run",
     etlPreview: (table: string) => `/api/etl/preview/${table}`,
+    excelPreview: (table: string) => `/api/etl/excel-preview/${table}`,
     health: "/api/health",
   },
 } as const;

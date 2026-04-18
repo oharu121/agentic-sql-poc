@@ -157,3 +157,29 @@ async def preview_parquet(table: str):
     rows = df.values.tolist()
     rows = [[v.item() if hasattr(v, "item") else v for v in row] for row in rows]
     return {"table": table, "columns": columns, "rows": rows}
+
+
+# Mapping from table name to Excel filename for lookups
+_TABLE_TO_EXCEL = {f["table"]: f["excel_name"] for f in _ETL_FILES}
+
+
+@router.get("/excel-preview/{table}")
+async def preview_excel(table: str):
+    """Return first 20 rows of the source Excel file as JSON."""
+    if table not in _TABLE_TO_EXCEL:
+        raise HTTPException(status_code=404, detail=f"Unknown table: {table}")
+
+    excel_name = _TABLE_TO_EXCEL[table]
+    excel_path = settings.RAW_DIR / excel_name
+    if not excel_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"Excel file not found: {excel_name}",
+        )
+
+    df = await asyncio.to_thread(pd.read_excel, excel_path)
+    df = df.head(20)
+    columns = list(df.columns)
+    rows = df.values.tolist()
+    rows = [[v.item() if hasattr(v, "item") else v for v in row] for row in rows]
+    return {"table": table, "source_file": excel_name, "columns": columns, "rows": rows}
