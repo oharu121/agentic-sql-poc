@@ -55,6 +55,16 @@ export interface SQLResult {
 
 export type QueryStatus = "streaming" | "done" | "error";
 
+export interface Scoring {
+  is_correct: boolean;
+  method: "result_match" | "term_match" | "none";
+  results_match: boolean;
+  found_terms: string[];
+  missing_terms: string[];
+  prohibited_found: string[];
+  explanation: string;
+}
+
 export interface QueryRecord {
   id: string;
   question: string;
@@ -65,6 +75,25 @@ export interface QueryRecord {
   retries: SQLRetry[];
   status: QueryStatus;
   errorMessage?: string;
+  /** Test-mode metadata: present only for evaluation runs. */
+  category?: "general" | "exception";
+  difficulty?: string;
+  scoring?: Scoring;
+}
+
+// ── Evaluation state ──────────────────────────────────────────────────────────
+
+export interface CategoryScore {
+  correct: number;
+  total: number;
+  percentage: number;
+}
+
+export interface EvaluationScore {
+  correct: number;
+  total: number;
+  percentage: number;
+  by_category: Record<string, CategoryScore>;
 }
 
 // ── ETL state ─────────────────────────────────────────────────────────────────
@@ -131,3 +160,33 @@ export type SQLSSEEvent =
   | SSEDoneEvent;
 
 export type ETLSSEEvent = SSEETLStepEvent | SSEDoneEvent;
+
+// ── Evaluation SSE events ─────────────────────────────────────────────────────
+
+export interface SSEEvalQueryStartEvent {
+  type: "eval_query_start";
+  data: {
+    id: string;
+    category: "general" | "exception";
+    difficulty?: string;
+    question: string;
+    index: number;
+    total: number;
+  };
+}
+
+export interface SSEEvalQueryScoredEvent {
+  type: "eval_query_scored";
+  data: { id: string; scoring: Scoring };
+}
+
+export interface SSEEvalCompleteEvent {
+  type: "eval_complete";
+  data: { score: EvaluationScore; processing_time_ms: number };
+}
+
+export type EvalSSEEvent =
+  | SSEEvalQueryStartEvent
+  | SSEEvalQueryScoredEvent
+  | SSEEvalCompleteEvent
+  | SQLSSEEvent;

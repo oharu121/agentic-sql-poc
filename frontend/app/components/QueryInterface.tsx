@@ -1,33 +1,75 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QueryCard } from "@/app/components/QueryCard";
 import { ChatInput } from "@/app/components/ChatInput";
 import { LoadingSpinner } from "@/app/components/LoadingSpinner";
+import { EvaluationSummaryBubble } from "@/app/components/EvaluationSummaryBubble";
 import { useQuery } from "@/hooks/useQuery";
+import { useEvaluation } from "@/hooks/useEvaluation";
 import { useWizardStore } from "@/stores/wizardStore";
 import { UI_TEXT } from "@/lib/constants";
 
+type Mode = "chat" | "eval";
+
 export function QueryInterface() {
-  const { records, isLoading, error, sendQuery, clearHistory, clearError } = useQuery();
+  const [mode, setMode] = useState<Mode>("chat");
   const toggleDrawer = useWizardStore((s) => s.toggleDrawer);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const chat = useQuery();
+  const evaluation = useEvaluation();
+
+  const records = mode === "chat" ? chat.records : evaluation.records;
+  const isLoading = mode === "chat" ? chat.isLoading : evaluation.isRunning;
+  const error = mode === "chat" ? chat.error : evaluation.error;
 
   // Auto-scroll to bottom on new content
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [records]);
+  }, [records, evaluation.summary]);
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="glass-header flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {/* Mode tabs */}
+          <div className="flex items-center gap-1 p-1 rounded-lg bg-white/5 border border-white/10">
+            <button
+              onClick={() => setMode("chat")}
+              disabled={isLoading}
+              className={`text-xs px-3 py-1 rounded-md transition-colors ${
+                mode === "chat"
+                  ? "bg-blue-500/30 text-white"
+                  : "text-white/50 hover:text-white/80"
+              }`}
+            >
+              {UI_TEXT.modeChat}
+            </button>
+            <button
+              onClick={() => setMode("eval")}
+              disabled={isLoading}
+              className={`text-xs px-3 py-1 rounded-md transition-colors ${
+                mode === "eval"
+                  ? "bg-purple-500/30 text-white"
+                  : "text-white/50 hover:text-white/80"
+              }`}
+            >
+              {UI_TEXT.modeEval}
+            </button>
+          </div>
+
           {isLoading && <LoadingSpinner size="sm" />}
           <span className="text-sm text-white/60">
-            {isLoading ? "処理中…" : `${records.length} 件のクエリ`}
+            {isLoading
+              ? mode === "eval"
+                ? UI_TEXT.evalRunning
+                : "処理中…"
+              : `${records.length} 件のクエリ`}
           </span>
         </div>
+
         <div className="flex items-center gap-3">
           <button
             onClick={toggleDrawer}
@@ -38,9 +80,17 @@ export function QueryInterface() {
             </svg>
             データリファレンス
           </button>
-          {records.length > 0 && (
+          {mode === "chat" && records.length > 0 && (
             <button
-              onClick={clearHistory}
+              onClick={chat.clearHistory}
+              className="text-xs text-white/30 hover:text-white/60 transition-colors"
+            >
+              {UI_TEXT.clearButton}
+            </button>
+          )}
+          {mode === "eval" && records.length > 0 && !isLoading && (
+            <button
+              onClick={evaluation.reset}
               className="text-xs text-white/30 hover:text-white/60 transition-colors"
             >
               {UI_TEXT.clearButton}
@@ -53,7 +103,10 @@ export function QueryInterface() {
       {error && (
         <div className="mx-4 mt-3 px-4 py-2 glass-bubble rounded-xl border border-red-500/30 flex items-center justify-between gap-3">
           <span className="text-sm text-red-300">{error}</span>
-          <button onClick={clearError} className="text-red-400/60 hover:text-red-400 transition-colors">
+          <button
+            onClick={mode === "chat" ? chat.clearError : () => {}}
+            className="text-red-400/60 hover:text-red-400 transition-colors"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -61,38 +114,76 @@ export function QueryInterface() {
         </div>
       )}
 
-      {/* Query history */}
+      {/* Body */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
         {records.length === 0 ? (
           <div className="h-full flex items-center justify-center">
             <div className="text-center glass-bubble rounded-2xl p-8 max-w-md">
-              <h2 className="text-xl font-bold gradient-text mb-2">{UI_TEXT.welcomeMessage}</h2>
-              <p className="text-white/50 text-sm">{UI_TEXT.welcomeDescription}</p>
-              <div className="mt-4 grid grid-cols-1 gap-2">
-                {EXAMPLE_QUESTIONS.map((q) => (
-                  <button
-                    key={q}
-                    onClick={() => sendQuery(q)}
-                    disabled={isLoading}
-                    className="text-xs text-left px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white/80 transition-all border border-white/5 hover:border-white/10"
-                  >
-                    {q}
-                  </button>
-                ))}
-              </div>
+              {mode === "chat" ? (
+                <>
+                  <h2 className="text-xl font-bold gradient-text mb-2">
+                    {UI_TEXT.welcomeMessage}
+                  </h2>
+                  <p className="text-white/50 text-sm">
+                    {UI_TEXT.welcomeDescription}
+                  </p>
+                  <div className="mt-4 grid grid-cols-1 gap-2">
+                    {EXAMPLE_QUESTIONS.map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => chat.sendQuery(q)}
+                        disabled={isLoading}
+                        className="text-xs text-left px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white/80 transition-all border border-white/5 hover:border-white/10"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-xl font-bold gradient-text mb-2">
+                    {UI_TEXT.evalWelcome}
+                  </h2>
+                  <p className="text-white/50 text-sm">
+                    {UI_TEXT.evalDescription}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         ) : (
-          records.map((record) => (
-            <QueryCard key={record.id} record={record} />
-          ))
+          <>
+            {records.map((record) => (
+              <QueryCard key={record.id} record={record} />
+            ))}
+            {mode === "eval" && evaluation.summary && (
+              <EvaluationSummaryBubble score={evaluation.summary} />
+            )}
+          </>
         )}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
+      {/* Input / control bar */}
       <div className="shrink-0 border-t border-white/10 glass-header">
-        <ChatInput onSend={sendQuery} disabled={isLoading} />
+        {mode === "chat" ? (
+          <ChatInput onSend={chat.sendQuery} disabled={isLoading} />
+        ) : (
+          <div className="px-4 py-3 flex items-center justify-center">
+            <button
+              onClick={evaluation.runEvaluation}
+              disabled={isLoading}
+              className="px-6 py-2 rounded-xl bg-linear-to-r from-purple-600 to-purple-700 text-white text-sm font-medium shadow-lg shadow-purple-500/20 hover:from-purple-500 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {isLoading
+                ? UI_TEXT.evalRunning
+                : records.length === 0
+                  ? UI_TEXT.evalStartButton
+                  : UI_TEXT.evalRerunButton}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

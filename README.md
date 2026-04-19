@@ -34,7 +34,7 @@ SQL → result DataFrame → UI
 │   ├── etl/           Excel → Parquet ETL with column validation
 │   ├── sql/           Schema constants and reference queries
 │   ├── data/          Raw Excel files and processed Parquet output
-│   ├── tests/         36 unit tests (ETL + agent + API)
+│   ├── tests/         55 unit tests (ETL + agent + API + evaluator)
 │   └── Dockerfile     HuggingFace Spaces Docker deployment
 └── frontend/          Next.js 16 + Tailwind 4 + Zustand (deployed to Vercel)
     ├── app/           Pages and components (ThinkingPanel, SQLResultTable, ETLPipelineView…)
@@ -87,7 +87,7 @@ uv run python test_queries.py
 
 ```bash
 pnpm test              # frontend + backend
-pnpm test:backend      # backend only (36 tests, no live LLM required)
+pnpm test:backend      # backend only (55 tests, no live LLM required)
 pnpm test:frontend     # frontend only
 ```
 

@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, RedirectResponse
 
 from app.config import settings
-from app.routers import chat_router, etl_router, schema_router
+from app.routers import chat_router, etl_router, evaluation_router, schema_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -63,6 +63,7 @@ app.add_middleware(
 app.include_router(chat_router)
 app.include_router(schema_router)
 app.include_router(etl_router)
+app.include_router(evaluation_router)
 
 
 @app.get("/")

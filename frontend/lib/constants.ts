@@ -12,6 +12,17 @@ export const UI_TEXT = {
   welcomeMessage: "日本語で質問してください",
   welcomeDescription:
     "エージェントが質問をSQLに変換し、DuckDBで実行して、処理の全ステップを表示します。",
+  modeChat: "自由チャット",
+  modeEval: "精度テスト",
+  evalStartButton: "テストを開始",
+  evalRerunButton: "再実行",
+  evalRunning: "テスト実行中…",
+  evalWelcome: "10問の精度テストを実行します",
+  evalDescription:
+    "ground truth と比較して、エージェントが正しく回答できているかを採点します。",
+  evalSummaryTitle: "精度テスト結果",
+  evalCategoryGeneral: "general",
+  evalCategoryException: "exception",
 } as const;
 
 export const API_CONFIG = {
@@ -23,5 +34,7 @@ export const API_CONFIG = {
     etlPreview: (table: string) => `/api/etl/preview/${table}`,
     excelPreview: (table: string) => `/api/etl/excel-preview/${table}`,
     health: "/api/health",
+    evaluateStream: "/api/evaluate/stream",
+    evaluateQueries: "/api/evaluate/queries",
   },
 } as const;

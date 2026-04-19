@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.0] - 2026-04-19
+
+### Added
+- Accuracy test mode in chat UI — toggle "精度テスト" tab to run 10 ground-truth questions through the real agent pipeline with per-question ✓/✗ scoring and an end-of-run summary bubble
+- 10-case fixture (`backend/app/data/evaluation/test_queries.json`) split into `general` and `exception` categories
+- Evaluator module (`app.data.evaluation.evaluator`) with dual scoring: result-equivalence against reference SQL plus rag-demo-style term presence — a case passes if either check succeeds
+- `GET /api/evaluate/stream` SSE endpoint that forwards every agent event verbatim and emits `eval_query_start` / `eval_query_scored` / `eval_complete` markers
+- `GET /api/evaluate/queries` for previewing the test question list
+- 19 new pytest cases covering result equivalence, term presence, and combined scoring
+
 ## [v1.1.1] - 2026-04-19
 
 ### Changed

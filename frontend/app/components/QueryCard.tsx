@@ -5,6 +5,7 @@ import { MayaAvatar } from "@/app/components/MayaAvatar";
 import type { AvatarState } from "@/app/components/MayaAvatar";
 import { ThinkingPanel } from "@/app/components/sql/ThinkingPanel";
 import { SQLResultTable } from "@/app/components/sql/SQLResultTable";
+import { ScoringAnnotation } from "@/app/components/ScoringAnnotation";
 import type { QueryRecord } from "@/lib/types";
 
 interface QueryCardProps {
@@ -61,6 +62,7 @@ export function QueryCard({ record }: QueryCardProps) {
                 retries={record.retries}
                 errorMessage={record.errorMessage}
               />
+              {record.scoring && <ScoringAnnotation scoring={record.scoring} />}
             </>
           )}
 

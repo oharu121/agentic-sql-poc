@@ -4,7 +4,7 @@
  */
 
 import { API_CONFIG } from "./constants";
-import type { SQLSSEEvent, ETLSSEEvent, SchemaResponse } from "./types";
+import type { SQLSSEEvent, ETLSSEEvent, EvalSSEEvent, SchemaResponse } from "./types";
 
 const { baseUrl, endpoints } = API_CONFIG;
 
@@ -12,13 +12,17 @@ const { baseUrl, endpoints } = API_CONFIG;
 
 async function* streamSSE<T>(
   url: string,
-  body: Record<string, unknown>
+  body?: Record<string, unknown>
 ): AsyncGenerator<T, void, unknown> {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  const init: RequestInit = body
+    ? {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }
+    : { method: "GET" };
+
+  const response = await fetch(url, init);
 
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status}`);
@@ -91,6 +95,12 @@ export async function fetchSchema(): Promise<SchemaResponse> {
   const response = await fetch(`${baseUrl}${endpoints.schema}`);
   if (!response.ok) throw new Error(`Schema fetch failed: ${response.status}`);
   return response.json();
+}
+
+// ── Evaluation endpoint ───────────────────────────────────────────────────────
+
+export async function* streamEvaluation(): AsyncGenerator<EvalSSEEvent, void, unknown> {
+  yield* streamSSE<EvalSSEEvent>(`${baseUrl}${endpoints.evaluateStream}`);
 }
 
 // ── Health check ──────────────────────────────────────────────────────────────

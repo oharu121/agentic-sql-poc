@@ -1,0 +1,95 @@
+{
+  "description": "Accuracy test suite for the text-to-SQL agent. 'general' cases follow patterns close to the few-shot examples in the system prompt; 'exception' cases use a different metric, quarter, dimension, or aggregation shape to test generalization.",
+  "queries": [
+    {
+      "id": "general_01",
+      "category": "general",
+      "difficulty": "easy",
+      "question": "関東エリアの今期（2025年度）累計売上実績は？",
+      "expected_sql": "SELECT SUM(\"売上_実績\") AS 累計売上実績_百万円 FROM area_pl WHERE \"エリア\" = '関東' AND \"年度\" = 2025",
+      "expected_answer_contains": ["2383"],
+      "expected_answer_must_not_contain": []
+    },
+    {
+      "id": "general_02",
+      "category": "general",
+      "difficulty": "medium",
+      "question": "全エリアで2025年度の計画比達成率が最も低いのはどこか？",
+      "expected_sql": "SELECT \"エリア\", ROUND(100.0 * SUM(\"売上_実績\") / SUM(\"売上_計画\"), 1) AS 達成率_percent FROM area_pl WHERE \"年度\" = 2025 GROUP BY \"エリア\" ORDER BY 達成率_percent ASC LIMIT 1",
+      "expected_answer_contains": ["関西"],
+      "expected_answer_must_not_contain": []
+    },
+    {
+      "id": "general_03",
+      "category": "general",
+      "difficulty": "medium",
+      "question": "2025年度Q2の商品別売上ランキングを教えてください。",
+      "expected_sql": "SELECT \"商品カテゴリ\", SUM(\"売上_実績\") AS 売上実績_百万円 FROM product_sales WHERE \"年度\" = 2025 AND \"四半期\" = 'Q2' GROUP BY \"商品カテゴリ\" ORDER BY 売上実績_百万円 DESC",
+      "expected_answer_contains": ["戸建", "マンション", "リフォーム"],
+      "expected_answer_must_not_contain": []
+    },
+    {
+      "id": "general_04",
+      "category": "general",
+      "difficulty": "easy",
+      "question": "2025年度の全エリア合計の売上実績はいくらですか？",
+      "expected_sql": "SELECT SUM(\"売上_実績\") AS 合計売上実績_百万円 FROM area_pl WHERE \"年度\" = 2025",
+      "expected_answer_contains": ["5729"],
+      "expected_answer_must_not_contain": []
+    },
+    {
+      "id": "general_05",
+      "category": "general",
+      "difficulty": "easy",
+      "question": "関西エリアの2025年度の利益実績は？",
+      "expected_sql": "SELECT SUM(\"利益_実績\") AS 利益実績_百万円 FROM area_pl WHERE \"エリア\" = '関西' AND \"年度\" = 2025",
+      "expected_answer_contains": ["233"],
+      "expected_answer_must_not_contain": []
+    },
+    {
+      "id": "exception_01",
+      "category": "exception",
+      "difficulty": "hard",
+      "question": "2025年度で利益の計画達成率が最も高いエリアはどこですか？",
+      "expected_sql": "SELECT \"エリア\", ROUND(100.0 * SUM(\"利益_実績\") / SUM(\"利益_計画\"), 1) AS 利益達成率_percent FROM area_pl WHERE \"年度\" = 2025 GROUP BY \"エリア\" ORDER BY 利益達成率_percent DESC LIMIT 1",
+      "expected_answer_contains": ["中部"],
+      "expected_answer_must_not_contain": []
+    },
+    {
+      "id": "exception_02",
+      "category": "exception",
+      "difficulty": "hard",
+      "question": "2025年度Q3のエリア別受注実績ランキングを出してください。",
+      "expected_sql": "SELECT \"エリア\", SUM(\"受注_実績\") AS 受注実績_百万円 FROM area_pl WHERE \"年度\" = 2025 AND \"四半期\" = 'Q3' GROUP BY \"エリア\" ORDER BY 受注実績_百万円 DESC",
+      "expected_answer_contains": ["関東", "関西", "中部", "九州", "東北"],
+      "expected_answer_must_not_contain": []
+    },
+    {
+      "id": "exception_03",
+      "category": "exception",
+      "difficulty": "hard",
+      "question": "関東エリアの2024年度と2025年度の売上実績を比較してください。",
+      "expected_sql": "SELECT \"年度\", SUM(\"売上_実績\") AS 売上実績_百万円 FROM area_pl WHERE \"エリア\" = '関東' GROUP BY \"年度\" ORDER BY \"年度\"",
+      "expected_answer_contains": ["2219", "2383"],
+      "expected_answer_must_not_contain": []
+    },
+    {
+      "id": "exception_04",
+      "category": "exception",
+      "difficulty": "hard",
+      "question": "2025年度の戸建のエリア別売上実績を教えてください。",
+      "expected_sql": "SELECT \"エリア\", SUM(\"売上_実績\") AS 売上実績_百万円 FROM product_sales WHERE \"年度\" = 2025 AND \"商品カテゴリ\" = '戸建' GROUP BY \"エリア\" ORDER BY 売上実績_百万円 DESC",
+      "expected_answer_contains": ["関東", "1012"],
+      "expected_answer_must_not_contain": ["マンション", "リフォーム"]
+    },
+    {
+      "id": "exception_05",
+      "category": "exception",
+      "difficulty": "hard",
+      "question": "2025年度のマンションの四半期別売上実績の推移を教えてください。",
+      "expected_sql": "SELECT \"四半期\", SUM(\"売上_実績\") AS 売上実績_百万円 FROM product_sales WHERE \"年度\" = 2025 AND \"商品カテゴリ\" = 'マンション' GROUP BY \"四半期\" ORDER BY \"四半期\"",
+      "expected_answer_contains": ["Q1", "Q2", "Q3", "Q4"],
+      "expected_answer_must_not_contain": ["戸建", "リフォーム"]
+    }
+  ]
+}
