@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.1] - 2026-04-19
+
+### Changed
+- All wizard, chat header, and ETL pipeline UI strings translated to Japanese
+- Step labels: データ確認 / 検証と変換 / スキーマ / クエリ開始
+- ETL button states (ETL実行 / ETL実行中… / ETL再実行) and status messages
+- Data reference panel section headings (列, カテゴリ値, サンプルデータ)
+- Technical/product names (Excel, Parquet, DuckDB, SQL) intentionally kept in English
+
 ## [v1.1.0] - 2026-04-18
 
 ### Added

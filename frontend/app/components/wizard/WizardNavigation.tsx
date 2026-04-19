@@ -22,11 +22,11 @@ export function WizardNavigation() {
             : "text-white/60 hover:text-white/80 hover:bg-white/5"
         }`}
       >
-        Back
+        戻る
       </button>
 
       <span className="text-xs text-white/30">
-        Step {currentStep} of 4
+        ステップ {currentStep} / 4
       </span>
 
       <button
@@ -36,7 +36,7 @@ export function WizardNavigation() {
           nextDisabled ? "opacity-50 cursor-not-allowed" : ""
         }`}
       >
-        {isLast ? "Start Querying" : "Next"}
+        {isLast ? "クエリ開始" : "次へ"}
       </button>
     </div>
   );

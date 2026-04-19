@@ -16,18 +16,17 @@ export function StepStartQuerying() {
       <div className="mb-8">
         <div className="text-5xl mb-4">🎉</div>
         <h2 className="text-2xl font-bold gradient-text mb-2">
-          You&apos;re Ready!
+          準備完了！
         </h2>
         <p className="text-white/50 text-sm">
-          Your data has been processed and loaded into DuckDB. Ask questions in
-          Japanese and the AI agent will generate SQL, execute it, and show you
-          the results.
+          データの処理が完了し、DuckDBに読み込まれました。日本語で質問すると、
+          AIエージェントがSQLを生成・実行し、結果を表示します。
         </p>
       </div>
 
       <div className="space-y-3 mb-8">
         <p className="text-xs text-white/40 uppercase tracking-wider">
-          Try asking something like
+          質問例
         </p>
         {EXAMPLE_QUESTIONS.map((q) => (
           <div
@@ -43,7 +42,7 @@ export function StepStartQuerying() {
         onClick={completeWizard}
         className="btn-primary text-base px-8 py-3 rounded-xl"
       >
-        Start Querying
+        クエリ開始
       </button>
     </div>
   );

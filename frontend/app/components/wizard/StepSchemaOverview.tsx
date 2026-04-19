@@ -7,11 +7,11 @@ export function StepSchemaOverview() {
     <div className="max-w-4xl mx-auto animate-fade-in-up">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold gradient-text mb-2">
-          Your Database Schema
+          データベーススキーマ
         </h2>
         <p className="text-white/50 text-sm">
-          This is the data the AI agent can query. Review the tables, column
-          types, and sample rows below.
+          AIエージェントがクエリできるデータです。下記のテーブル、列の型、
+          サンプル行をご確認ください。
         </p>
       </div>
 

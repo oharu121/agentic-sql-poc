@@ -15,12 +15,12 @@ export function StepValidateTransform() {
     <div className="max-w-2xl mx-auto animate-fade-in-up">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold gradient-text mb-2">
-          Validate & Transform
+          検証と変換
         </h2>
         <p className="text-white/50 text-sm">
-          The pipeline reads each Excel file, validates column names and data
-          types, then writes clean Parquet files. Finally, DuckDB loads the
-          Parquet data for querying.
+          パイプラインは各Excelファイルを読み込み、列名とデータ型を検証して、
+          クリーンなParquetファイルを出力します。最後に、DuckDBがParquetデータを
+          読み込み、クエリ可能になります。
         </p>
       </div>
 
@@ -30,7 +30,7 @@ export function StepValidateTransform() {
 
       {etlCompleted && (
         <p className="text-center text-sm text-green-400/80 mt-4 animate-fade-in">
-          Pipeline complete — click Next to see the schema.
+          パイプライン完了 — 「次へ」をクリックしてスキーマを確認してください。
         </p>
       )}
     </div>

@@ -3,10 +3,10 @@
 import { useWizardStore } from "@/stores/wizardStore";
 
 const STEPS = [
-  { label: "Your Data", icon: "📊" },
-  { label: "Validate & Transform", icon: "✓" },
-  { label: "Schema", icon: "📋" },
-  { label: "Start Querying", icon: "💬" },
+  { label: "データ確認", icon: "📊" },
+  { label: "検証と変換", icon: "✓" },
+  { label: "スキーマ", icon: "📋" },
+  { label: "クエリ開始", icon: "💬" },
 ];
 
 export function WizardStepper() {

@@ -82,7 +82,7 @@ function TableSection({
       {/* Schema: columns + types */}
       <div>
         <h4 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">
-          Columns
+          列
         </h4>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-1">
           {schema.columns.map((col) => (
@@ -103,7 +103,7 @@ function TableSection({
       {Object.keys(schema.enum_values).length > 0 && (
         <div>
           <h4 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">
-            Categorical Values
+            カテゴリ値
           </h4>
           <div className="space-y-2">
             {Object.entries(schema.enum_values).map(([col, values]) => (
@@ -129,7 +129,7 @@ function TableSection({
       {previewData && previewData.rows.length > 0 && (
         <div>
           <h4 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">
-            Sample Data ({previewData.rows.length} rows)
+            サンプルデータ（{previewData.rows.length}行）
           </h4>
           <PreviewTable columns={previewData.columns} rows={previewData.rows} />
         </div>
@@ -194,7 +194,7 @@ export function DataReferencePanel() {
         dispatch({ type: "success", schemas: schemaRes.tables, previews: map });
       })
       .catch(() => {
-        if (!cancelled) dispatch({ type: "error", message: "Failed to load data reference" });
+        if (!cancelled) dispatch({ type: "error", message: "データリファレンスの読み込みに失敗しました" });
       });
 
     return () => { cancelled = true; };

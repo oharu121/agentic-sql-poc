@@ -8,7 +8,7 @@ import type { ETLStepState } from "@/lib/types";
 
 const STAGES = [
   { key: "read", label: "Excel", icon: "📊" },
-  { key: "validate_cols", label: "Validate", icon: "✓" },
+  { key: "validate_cols", label: "検証", icon: "✓" },
   { key: "write_parquet", label: "Parquet", icon: "📦" },
 ] as const;
 
@@ -120,15 +120,15 @@ export function ETLPipelineView({ onComplete }: ETLPipelineViewProps) {
         disabled={running}
         className={`btn-primary text-xs px-3 py-2 rounded-lg w-full ${running ? "opacity-50 cursor-not-allowed" : ""}`}
       >
-        {running ? "Running ETL…" : done ? "Re-run ETL" : "Run ETL"}
+        {running ? "ETL実行中…" : done ? "ETL再実行" : "ETL実行"}
       </button>
 
       {/* Status */}
       {done && !hasError && (
-        <p className="text-xs text-green-400 text-center">ETL complete — data loaded into DuckDB</p>
+        <p className="text-xs text-green-400 text-center">ETL完了 — DuckDBにデータを読み込みました</p>
       )}
       {hasError && (
-        <p className="text-xs text-red-400 text-center">ETL failed — check step log below</p>
+        <p className="text-xs text-red-400 text-center">ETL失敗 — 下記のログを確認してください</p>
       )}
 
       {/* Step log */}
