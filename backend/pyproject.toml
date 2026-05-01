@@ -8,13 +8,13 @@ dependencies = [
     "uvicorn[standard]>=0.46.0",
     "pydantic>=2.13.3",
     "python-dotenv>=1.0.0",
-    "google-genai>=1.73.1",
+    "google-genai>=1.74.0",
     "pandas>=2.2",
     "openpyxl>=3.1",
     "pyarrow>=24.0.0",
     "duckdb>=1.5.2",
     "numpy>=1.26",
-    "ollama>=0.3",
+    "ollama>=0.6.2",
 ]
 
 [dependency-groups]
