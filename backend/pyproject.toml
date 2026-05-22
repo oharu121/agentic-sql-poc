@@ -8,12 +8,12 @@ dependencies = [
     "uvicorn[standard]>=0.47.0",
     "pydantic>=2.13.4",
     "python-dotenv>=1.0.0",
-    "google-genai>=2.3.0",
+    "google-genai>=2.6.0",
     "pandas>=3.0.3",
     "openpyxl>=3.1",
     "pyarrow>=24.0.0",
-    "duckdb>=1.5.2",
-    "numpy>=1.26",
+    "duckdb>=1.5.3",
+    "numpy>=2.4.6",
     "ollama>=0.6.2",
 ]
 
