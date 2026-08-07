@@ -5,7 +5,7 @@ description = "FastAPI backend for the agentic SQL educational demo"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.141.1",
-    "uvicorn[standard]>=0.51.0",
+    "uvicorn[standard]>=0.52.1",
     "pydantic>=2.13.4",
     "python-dotenv>=1.0.0",
     "google-genai>=2.16.0",
