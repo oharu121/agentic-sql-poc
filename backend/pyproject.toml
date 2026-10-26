@@ -29,3 +29,9 @@ dev = [
 testpaths = ["tests"]
 asyncio_mode = "auto"
 
+
+# Pin the public index so a user-level uv.toml mirror doesn't rewrite uv.lock URLs.
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true
